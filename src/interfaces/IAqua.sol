@@ -1,0 +1,85 @@
+// SPDX-License-Identifier: LicenseRef-Degensoft-ARSL-1.0-Audit
+
+pragma solidity ^0.8.0;
+
+/// @title Aqua - Shared Liquidity Layer
+/// @notice Manages token balances (aka allowances) between makers (liquidity providers) and apps,
+///         enabling shared liquidity access directly from maker wallets
+interface IAqua {
+    /// @notice Emitted when a new strategy is shipped (deployed) and initialized with balances
+    /// @param maker The address of the maker shipping the strategy
+    /// @param app The strategy address being revoked
+    /// @param strategyHash The hash of the strategy being shipped
+    /// @param strategy The strategy being shipped (abi enocoded)
+    event Shipped(address maker, address app, bytes32 strategyHash, bytes strategy);
+
+    /// @notice Emitted when a maker revokes (deactivates) a strategy
+    /// @param maker The address of the maker revoking the strategy
+    /// @param app The strategy address being revoked
+    /// @param strategyHash The hash of the strategy being revoked
+    event Docked(address maker, address app, bytes32 strategyHash);
+
+    /// @notice Emitted when a strategy pulls tokens from a maker
+    /// @param maker The address of the maker whose tokens are being pulled
+    /// @param app The strategy address that pulled the tokens
+    /// @param strategyHash The hash of the strategy being pulled from
+    /// @param token The token address being pulled
+    /// @param amount The amount of tokens being pulled
+    /// @dev The tokens are transferred from the maker's balance to the specified recipient
+    event Pulled(address maker, address app, bytes32 strategyHash, address token, uint256 amount);
+
+    /// @notice Emitted when tokens are pushed into a maker's balance
+    /// @param maker The address of the maker whose balance receives the tokens
+    /// @param app The strategy that gets increased balance
+    /// @param strategyHash The hash of the strategy being pushed to
+    /// @param token The token address being pushed
+    /// @param amount The amount of tokens being pushed and added to the strategy's balance
+    /// @dev The tokens are transferred from the caller to the maker's balance
+    event Pushed(address maker, address app, bytes32 strategyHash, address token, uint256 amount);
+
+    /// @notice Returns the balance amount for a specific maker, app, and token combination
+    /// @param maker The address of the maker who granted the balance
+    /// @param app The address of the app/strategy that can pull tokens
+    /// @param strategyHash The hash of the strategy being used
+    /// @param token The address of the token
+    /// @return The current balance amount
+    function balances(address maker, address app, bytes32 strategyHash, address token) external view returns (uint256);
+
+    /// @notice Ships a new strategy as of an app and sets initial balances
+    /// @dev Parameter `strategy` is presented fully instead of being pre-hashed for data availability
+    /// @param app The implementation contract
+    /// @param strategy Initialization data passed to the strategy
+    /// @param tokens Array of token addresses to approve
+    /// @param amounts Array of balance amounts for each token
+    function ship(
+        address app,
+        bytes calldata strategy,
+        address[] calldata tokens,
+        uint256[] calldata amounts
+    ) external returns(bytes32 strategyHash);
+
+    /// @notice Docks (deactivates) a strategy by clearing balances for specified tokens
+    /// @dev Sets balances to 0 for all specified tokens
+    /// @param app The strategy address to dock
+    /// @param strategyHash The hash of the strategy being docked
+    /// @param tokens Array of token addresses to clear
+    function dock(address app, bytes32 strategyHash, address[] calldata tokens) external;
+
+    /// @notice Allows a strategy to pull tokens from a maker's wallet
+    /// @dev Decrements the balance and transfers tokens. Caller must be an approved app
+    /// @param maker The maker to pull tokens from
+    /// @param strategyHash The hash of the strategy being used
+    /// @param token The token address to pull
+    /// @param amount The amount to pull
+    /// @param to The recipient address
+    function pull(address maker, bytes32 strategyHash, address token, uint256 amount, address to) external;
+
+    /// @notice Pushes tokens and increases an app balance
+    /// @dev Transfers tokens from caller to maker and increases the app's balance
+    /// @param maker The maker whose balance receives the tokens
+    /// @param app The address of the app/strategy receiving the tokens
+    /// @param strategyHash The hash of the strategy being pushed
+    /// @param token The token address to push
+    /// @param amount The amount to push and add to balance
+    function push(address maker, address app, bytes32 strategyHash, address token, uint256 amount) external;
+}
