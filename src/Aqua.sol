@@ -32,7 +32,6 @@ contract Aqua is IAqua, Context {
         return _balances[maker][app][strategyHash][token].amount;
     }
 
-    /// @notice Returns balances of multiple tokens in a strategy, reverts if any of the tokens is not part of the active strategy
     function safeBalances(address maker, address app, bytes32 strategyHash, address[] calldata tokens) external view returns (uint256[] memory amounts) {
         amounts = new uint256[](tokens.length);
         for (uint256 i = 0; i < tokens.length; i++) {
