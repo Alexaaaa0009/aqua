@@ -121,11 +121,6 @@ contract XYCSwap is AquaApp {
     function _getInAndOut(Strategy calldata strategy, bytes32 strategyHash, bool zeroForOne) private view returns (address tokenIn, address tokenOut, uint256 balanceIn, uint256 balanceOut) {
         tokenIn = zeroForOne ? strategy.token0 : strategy.token1;
         tokenOut = zeroForOne ? strategy.token1 : strategy.token0;
-        address[] memory tokens = new address[](2);
-        tokens[0] = tokenIn;
-        tokens[1] = tokenOut;
-        uint256[] memory balances = AQUA.safeBalances(strategy.maker, address(this), strategyHash, tokens);
-        balanceIn = balances[0];
-        balanceOut = balances[1];
+        (balanceIn, balanceOut) = AQUA.safeBalances(strategy.maker, address(this), strategyHash, tokenIn, tokenOut);
     }
 }

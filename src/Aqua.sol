@@ -32,14 +32,14 @@ contract Aqua is IAqua, Context {
         return _balances[maker][app][strategyHash][token].load();
     }
 
-    function safeBalances(address maker, address app, bytes32 strategyHash, address[] calldata tokens) external view returns (uint256[] memory amounts) {
-        amounts = new uint256[](tokens.length);
-        mapping(address => Balance) storage tokenBalances = _balances[maker][app][strategyHash];
-        for (uint256 i = 0; i < tokens.length; i++) {
-            (uint248 amount, uint8 tokensCount) = tokenBalances[tokens[i]].load();
-            require(tokensCount > 0 && tokensCount != _DOCKED, SafeBalancesForTokenNotInActiveStrategy(maker, app, strategyHash, tokens[i]));
-            amounts[i] = amount;
-        }
+    function safeBalances(address maker, address app, bytes32 strategyHash, address token0, address token1) external view returns (uint256 balance0, uint256 balance1) {
+        (uint248 amount0, uint8 tokensCount0) = _balances[maker][app][strategyHash][token0].load();
+        require(tokensCount0 > 0 && tokensCount0 != _DOCKED, SafeBalancesForTokenNotInActiveStrategy(maker, app, strategyHash, token0));
+        balance0 = amount0;
+
+        (uint248 amount1, uint8 tokensCount1) = _balances[maker][app][strategyHash][token1].load();
+        require(tokensCount1 > 0 && tokensCount1 != _DOCKED, SafeBalancesForTokenNotInActiveStrategy(maker, app, strategyHash, token1));
+        balance1 = amount1;
     }
 
     function ship(address app, bytes calldata strategy, address[] calldata tokens, uint256[] calldata amounts) external returns(bytes32 strategyHash) {

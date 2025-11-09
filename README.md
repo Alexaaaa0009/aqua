@@ -319,11 +319,12 @@ The function reverts if any token is not part of the strategy, preventing calcul
 
 ```solidity
 // Safe balance check before swap
-uint256[] memory balances = AQUA.safeBalances(
+(uint256 balanceIn, uint256 balanceOut) = AQUA.safeBalances(
     strategy.maker, 
     address(this), 
     strategyHash, 
-    tokens
+    tokenIn,
+    tokenOut
 );
 // Transaction reverts if any token is not in the strategy
 ```
@@ -433,8 +434,9 @@ function safeBalances(
     address maker,
     address app,
     bytes32 strategyHash,
-    address[] calldata tokens
-) external view returns (uint256[] memory);
+    address token0,
+    address token1
+) external view returns (uint256 balance0, uint256 balance1);
 ```
 
 ### AquaApp Base Contract

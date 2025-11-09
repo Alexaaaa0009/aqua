@@ -346,16 +346,16 @@ contract AquaTest is Test {
         bytes32 strategyHash = keccak256("safe_balances");
 
         // Query safeBalances
-        uint256[] memory balances = aqua.safeBalances(
+        (uint256 balance0, uint256 balance1) = aqua.safeBalances(
             maker,
             app,
             strategyHash,
-            dynamic([address(token1), address(token2)])
+            address(token1),
+            address(token2)
         );
 
-        assertEq(balances.length, 2);
-        assertEq(balances[0], 150e18);
-        assertEq(balances[1], 250e18);
+        assertEq(balance0, 150e18);
+        assertEq(balance1, 250e18);
     }
 
     function testSafeBalancesRevertsForNonExistentStrategy() public {
@@ -373,7 +373,8 @@ contract AquaTest is Test {
             maker,
             app,
             keccak256("nonexistent"),
-            dynamic([address(token1)])
+            address(token1),
+            address(token2)
         );
     }
 
@@ -403,7 +404,8 @@ contract AquaTest is Test {
             maker,
             app,
             strategyHash,
-            dynamic([address(token1), address(token2), address(token3)])
+            address(token1),
+            address(token3)
         );
     }
 
@@ -441,7 +443,8 @@ contract AquaTest is Test {
             maker,
             app,
             strategyHash,
-            dynamic([address(token1)])
+            address(token1),
+            address(token2)
         );
     }
 
@@ -466,35 +469,15 @@ contract AquaTest is Test {
         aqua.pull(maker, strategyHash, address(token2), 50e18, app);
 
         // Verify safeBalances reflects the changes
-        uint256[] memory balances = aqua.safeBalances(
+        (uint256 balance0, uint256 balance1) = aqua.safeBalances(
             maker,
             app,
             strategyHash,
-            dynamic([address(token1), address(token2)])
+            address(token1),
+            address(token2)
         );
 
-        assertEq(balances[0], 150e18); // 100 + 50 pushed
-        assertEq(balances[1], 150e18); // 200 - 50 pulled
-    }
-
-    function testSafeBalancesWithEmptyTokenArray() public {
-        // Ship strategy
-        vm.prank(maker);
-        aqua.ship(
-            app,
-            "safe_empty",
-            dynamic([address(token1)]),
-            dynamic([uint256(100e18)])
-        );
-
-        // Query with empty array
-        uint256[] memory balances = aqua.safeBalances(
-            maker,
-            app,
-            keccak256("safe_empty"),
-            new address[](0)
-        );
-
-        assertEq(balances.length, 0);
+        assertEq(balance0, 150e18); // 100 + 50 pushed
+        assertEq(balance1, 150e18); // 200 - 50 pulled
     }
 }
