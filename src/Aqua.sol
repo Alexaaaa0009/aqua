@@ -28,7 +28,7 @@ contract Aqua is IAqua, Context {
             mapping(bytes32 strategyHash =>
                 mapping(address token => Balance)))) private _balances; // aka makers' allowances
 
-    function rawBalances(address maker, address app, bytes32 strategyHash, address token) external view returns (uint248 amount, uint8 tokensCount) {
+    function rawBalances(address maker, address app, bytes32 strategyHash, address token) external view returns (uint248 balance, uint8 tokensCount) {
         return _balances[maker][app][strategyHash][token].load();
     }
 
