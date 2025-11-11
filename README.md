@@ -51,7 +51,6 @@ Traditional DeFi protocols fragment liquidity by locking it in isolated pools. A
 - **Unified Liquidity**: Single approval enables participation in unlimited strategies
 - **Capital Efficiency**: Share liquidity across protocols without redeployment
 - **Granular Control**: Per-strategy balance management
-- **Gas Optimized**: Minimal storage overhead using balance packing
 - **No Custody**: Tokens remain in LP wallets, only virtual balances tracked
 
 ## Architecture
@@ -184,7 +183,7 @@ bytes32 strategyHash = aqua.ship(
 **3. Manage strategies**
 ```solidity
 // Check balance
-uint256 balance = aqua.balances(maker, app, strategyHash, token);
+(uint256 balanceIn, balanceOut) = aqua.safeBalances(maker, app, strategyHash, tokenIn, tokenOut);
 
 // Withdraw liquidity and deactivate strategy
 aqua.dock(app, strategyHash, tokens);
@@ -211,6 +210,7 @@ contract Trader is IAquaTakerCallback {
     ) external override {
         // Transfer tokenIn to complete the swap (requires token approval)
         // This is the ONLY appropriate use of push() - during swap execution
+        IERC20(tokenIn).forceApprove(aqua, amountIn);
         aqua.push(maker, app, strategyHash, tokenIn, amountIn);
     }
 }
@@ -260,8 +260,7 @@ function swap(
     address tokenIn = isZeroForOne ? strategy.token0 : strategy.token1;
     address tokenOut = isZeroForOne ? strategy.token1 : strategy.token0;
 
-    uint256 balanceIn = AQUA.balances(strategy.maker, address(this), strategyHash, tokenIn);
-    uint256 balanceOut = AQUA.balances(strategy.maker, address(this), strategyHash, tokenOut);
+    (uint256 balanceIn, uint256 balanceOut) = AQUA.safeBalances(strategy.maker, address(this), strategyHash, tokenIn, tokenOut);
 
     amountOut = // ... compute output amount based on AMM logic
     uint256 expectedBalanceIn = balanceIn + amountIn;
@@ -293,8 +292,7 @@ function swap(
     address tokenIn = isZeroForOne ? strategy.token0 : strategy.token1;
     address tokenOut = isZeroForOne ? strategy.token1 : strategy.token0;
 
-    uint256 balanceIn = AQUA.balances(strategy.maker, address(this), strategyHash, tokenIn);
-    uint256 balanceOut = AQUA.balances(strategy.maker, address(this), strategyHash, tokenOut);
+    (uint256 balanceIn, uint256 balanceOut) = AQUA.safeBalances(strategy.maker, address(this), strategyHash, tokenIn, tokenOut);
 
     amountOut = // ... compute output amount based on AMM logic
 
@@ -306,6 +304,27 @@ function swap(
     IERC20(tokenIn).approve(address(AQUA), amountIn);
     AQUA.push(strategy.maker, address(this), strategyHash, tokenIn, amountIn);
 }
+```
+
+**Safe Balance Queries**
+
+Use `safeBalances()` when you need to ensure that queried tokens are part of the active strategy. This is particularly important for:
+- Multi-token AMM strategies
+- Strategies with multiple tokens
+- Verifying strategy validity before executing swaps
+
+The function reverts if any token is not part of the strategy, preventing calculation errors.
+
+```solidity
+// Safe balance check before swap
+(uint256 balanceIn, uint256 balanceOut) = AQUA.safeBalances(
+    strategy.maker, 
+    address(this), 
+    strategyHash, 
+    tokenIn,
+    tokenOut
+);
+// Transaction reverts if any token is not in the strategy
 ```
 
 **Taker Implementation**
@@ -400,12 +419,22 @@ function push(
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Query virtual balance
-function balances(
+function rawBalances(
     address maker,
     address app,
     bytes32 strategyHash,
     address token
-) external view returns (uint256);
+) external view returns (uint248 balance, uint8 tokensCount);
+
+// Query multiple token balances with active strategy validation
+// Reverts if any token is not part of the active strategy
+function safeBalances(
+    address maker,
+    address app,
+    bytes32 strategyHash,
+    address token0,
+    address token1
+) external view returns (uint256 balance0, uint256 balance1);
 ```
 
 ### AquaApp Base Contract
