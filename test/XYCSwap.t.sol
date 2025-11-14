@@ -10,7 +10,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import { Aqua } from "src/Aqua.sol";
 import { AquaApp } from "src/AquaApp.sol";
-import { XYCSwap, IAquaTakerCallback } from "src/apps/XYCSwap.sol";
+import { XYCSwap, IXYCSwapCallback } from "src/apps/XYCSwap.sol";
 
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
@@ -21,17 +21,17 @@ contract MockERC20 is ERC20 {
     }
 }
 
-// Simple IAquaTakerCallback implementation for testing
-contract TestCallback is IAquaTakerCallback {
-    function aquaTakerCallback(address, address, uint256, uint256, address, address, bytes32, bytes calldata) external virtual override {
+// Simple IXYCSwapCallback implementation for testing
+contract TestCallback is IXYCSwapCallback {
+    function xycSwapCallback(address, address, uint256, uint256, address, address, bytes32, bytes calldata) external virtual override {
         // Callback now must handle token transfers
         // This base implementation does nothing - derived contracts will override
     }
 }
 
-// Malicious aquaTakerCallback that doesn't deposit tokens
-contract MaliciousCallback is IAquaTakerCallback {
-    function aquaTakerCallback(address, address, uint256, uint256, address, address, bytes32, bytes calldata) external override {
+// Malicious xycSwapCallback that doesn't deposit tokens
+contract MaliciousCallback is IXYCSwapCallback {
+    function xycSwapCallback(address, address, uint256, uint256, address, address, bytes32, bytes calldata) external override {
         // Intentionally do nothing - don't deposit tokens
     }
 }
@@ -708,8 +708,8 @@ contract XYCSwapTest is Test, TestCallback {
         return (amountInWithFee * reserveOut) / (reserveIn + amountInWithFee);
     }
 
-    // Override aquaTakerCallback function from TestCallback
-    function aquaTakerCallback(address tokenIn, address /* tokenOut */, uint256 amountIn, uint256 /* amountOut */, address maker_, address implementation, bytes32 strategyHash, bytes calldata /* takerData */) external override {
+    // Override xycSwapCallback function from TestCallback
+    function xycSwapCallback(address tokenIn, address /* tokenOut */, uint256 amountIn, uint256 /* amountOut */, address maker_, address implementation, bytes32 strategyHash, bytes calldata /* takerData */) external override {
         IERC20(tokenIn).approve(address(aqua), amountIn);
         aqua.push(maker_, implementation, strategyHash, tokenIn, amountIn);
     }

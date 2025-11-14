@@ -5,7 +5,7 @@ pragma solidity 0.8.30;
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { IAqua } from "../interfaces/IAqua.sol";
-import { IAquaTakerCallback } from "../interfaces/IAquaTakerCallback.sol";
+import { IABCWeightedSwapCallback } from "../apps/interfaces/IABCWeightedSwapCallback.sol";
 import { AquaApp, TransientLockLib, TransientLock } from "../AquaApp.sol";
 
 import { WeightedMath } from "./libs/WeightedMath.sol";
@@ -95,7 +95,7 @@ contract ABCWeightedSwap is AquaApp {
         require(amountOut >= amountOutMin, InsufficientOutputAmount(amountOut, amountOutMin));
 
         AQUA.pull(strategy.maker, strategyHash, io.tokenOut, amountOut, to);
-        IAquaTakerCallback(msg.sender).aquaTakerCallback(io.tokenIn, io.tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
+        IABCWeightedSwapCallback(msg.sender).abcWeightedSwapCallback(io.tokenIn, io.tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
         _safeCheckAquaPush(strategy.maker, strategyHash, io.tokenIn, io.balanceIn + amountIn);
     }
 
@@ -120,7 +120,7 @@ contract ABCWeightedSwap is AquaApp {
         require(amountIn <= amountInMax, ExcessiveInputAmount(amountIn, amountInMax));
 
         AQUA.pull(strategy.maker, strategyHash, io.tokenOut, amountOut, to);
-        IAquaTakerCallback(msg.sender).aquaTakerCallback(io.tokenIn, io.tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
+        IABCWeightedSwapCallback(msg.sender).abcWeightedSwapCallback(io.tokenIn, io.tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
         _safeCheckAquaPush(strategy.maker, strategyHash, io.tokenIn, io.balanceIn + amountIn);
     }
 

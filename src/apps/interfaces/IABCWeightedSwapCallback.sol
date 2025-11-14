@@ -2,13 +2,15 @@
 
 pragma solidity ^0.8.0;
 
-interface IAquaMakerCallback {
-    function aquaMakerCallback(
+interface IABCWeightedSwapCallback {
+    function abcWeightedSwapCallback(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 amountOut,
-        address taker,
+        address maker,
+        address implementation,
+        bytes32 strategyHash,
         bytes calldata takerData
     ) external;
 }

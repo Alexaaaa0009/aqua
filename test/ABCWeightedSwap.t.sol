@@ -10,7 +10,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import { Aqua } from "src/Aqua.sol";
 import { AquaApp } from "src/AquaApp.sol";
-import { ABCWeightedSwap, IAquaTakerCallback } from "src/apps/ABCWeightedSwap.sol";
+import { ABCWeightedSwap, IABCWeightedSwapCallback } from "src/apps/ABCWeightedSwap.sol";
 
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
@@ -21,9 +21,9 @@ contract MockERC20 is ERC20 {
     }
 }
 
-// Simple IAquaTakerCallback implementation for testing
-contract TestCallback is IAquaTakerCallback {
-    function aquaTakerCallback(
+// Simple IABCWeightedSwapCallback implementation for testing
+contract TestCallback is IABCWeightedSwapCallback {
+    function abcWeightedSwapCallback(
         address,
         address,
         uint256,
@@ -42,9 +42,9 @@ contract TestCallback is IAquaTakerCallback {
     }
 }
 
-// Malicious aquaTakerCallback that doesn't deposit tokens
-contract MaliciousCallback is IAquaTakerCallback {
-    function aquaTakerCallback(
+// Malicious IABCWeightedSwapCallback that doesn't deposit tokens
+contract MaliciousCallback is IABCWeightedSwapCallback {
+    function abcWeightedSwapCallback(
         address,
         address,
         uint256,
@@ -592,8 +592,8 @@ contract ABCWeightedSwapTest is Test, TestCallback {
         console.log("High-weight tokens naturally accumulate, low-weight tokens get sold off.");
     }
 
-    // Override aquaTakerCallback function from TestCallback
-    function aquaTakerCallback(
+    // Override abcWeightedSwapCallback function from TestCallback
+    function abcWeightedSwapCallback(
         address tokenIn,
         address, /* tokenOut */
         uint256 amountIn,

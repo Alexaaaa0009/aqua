@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-interface IAquaTakerCallback {
-    function aquaTakerCallback(
+interface IXYCSwapCallback {
+    function xycSwapCallback(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,

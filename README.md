@@ -197,21 +197,21 @@ aqua.dock(app, strategyHash, tokens);
 
 **1. Implement callback interface**
 ```solidity
-contract Trader is IAquaTakerCallback {
-    function aquaTakerCallback(
+contract Trader is IXYCSwapCallback {
+    function xycSwapCallback(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 amountOut,
         address maker,
-        address app,
+        address implementation,
         bytes32 strategyHash,
-        bytes calldata data
+        bytes calldata takerData
     ) external override {
         // Transfer tokenIn to complete the swap (requires token approval)
         // This is the ONLY appropriate use of push() - during swap execution
         IERC20(tokenIn).forceApprove(aqua, amountIn);
-        aqua.push(maker, app, strategyHash, tokenIn, amountIn);
+        aqua.push(maker, implementation, strategyHash, tokenIn, amountIn);
     }
 }
 ```
@@ -269,7 +269,7 @@ function swap(
     AQUA.pull(strategy.maker, strategyHash, tokenOut, amountOut, recipient);
 
     // Callback for input tokens
-    IAquaTakerCallback(msg.sender).aquaTakerCallback(
+    IXYCSwapCallback(msg.sender).xycSwapCallback(
         tokenIn, tokenOut, amountIn, amountOut,
         strategy.maker, address(this), strategyHash, takerData
     );
@@ -329,7 +329,7 @@ The function reverts if any token is not part of the strategy, preventing calcul
 
 **Taker Implementation**
 ```solidity
-contract SimpleTrader is IAquaTakerCallback {
+contract SimpleTrader is IXYCSwapCallback {
     IAqua public immutable AQUA;
 
     constructor(IAqua _aqua, IERC20[] memory tokens) {
@@ -355,18 +355,18 @@ contract SimpleTrader is IAquaTakerCallback {
         );
     }
 
-    function aquaTakerCallback(
+    function xycSwapCallback(
         address tokenIn,
         address,  // tokenOut
         uint256 amountIn,
         uint256,  // amountOut
         address maker,
-        address app,
+        address implementation,
         bytes32 strategyHash,
         bytes calldata
     ) external override {
         // Transfer input tokens to complete swap (SWAP EXECUTION ONLY)
-        AQUA.push(maker, app, strategyHash, tokenIn, amountIn);
+        AQUA.push(maker, implementation, strategyHash, tokenIn, amountIn);
     }
 }
 ```
@@ -461,16 +461,29 @@ function _safeCheckAquaPush(
 ### Callback Interfaces
 
 ```solidity
-interface IAquaTakerCallback {
-    function aquaTakerCallback(
+interface IXYCSwapCallback {
+    function xycSwapCallback(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 amountOut,
         address maker,
-        address app,
+        address implementation,
         bytes32 strategyHash,
-        bytes calldata data
+        bytes calldata takerData
+    ) external;
+}
+
+interface IABCWeightedSwapCallback {
+    function abcWeightedSwapCallback(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 amountOut,
+        address maker,
+        address implementation,
+        bytes32 strategyHash,
+        bytes calldata takerData
     ) external;
 }
 ```
