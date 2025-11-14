@@ -5,7 +5,7 @@ pragma solidity 0.8.30;
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { IAqua } from "../interfaces/IAqua.sol";
-import { IAquaTakerCallback } from "../interfaces/IAquaTakerCallback.sol";
+import { IXYCSwapCallback } from "../apps/interfaces/IXYCSwapCallback.sol";
 import { TransientLock, TransientLockLib } from "../libs/ReentrancyGuard.sol";
 import { AquaApp } from "../AquaApp.sol";
 
@@ -67,7 +67,7 @@ contract XYCSwap is AquaApp {
         require(amountOut >= amountOutMin, InsufficientOutputAmount(amountOut, amountOutMin));
 
         AQUA.pull(strategy.maker, strategyHash, tokenOut, amountOut, to);
-        IAquaTakerCallback(msg.sender).aquaTakerCallback(tokenIn, tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
+        IXYCSwapCallback(msg.sender).xycSwapCallback(tokenIn, tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
         _safeCheckAquaPush(strategy.maker, strategyHash, tokenIn, balanceIn + amountIn);
     }
 
@@ -90,7 +90,7 @@ contract XYCSwap is AquaApp {
         require(amountIn <= amountInMax, ExcessiveInputAmount(amountIn, amountInMax));
 
         AQUA.pull(strategy.maker, strategyHash, tokenOut, amountOut, to);
-        IAquaTakerCallback(msg.sender).aquaTakerCallback(tokenIn, tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
+        IXYCSwapCallback(msg.sender).xycSwapCallback(tokenIn, tokenOut, amountIn, amountOut, strategy.maker, address(this), strategyHash, takerData);
         _safeCheckAquaPush(strategy.maker, strategyHash, tokenIn, balanceIn + amountIn);
     }
 

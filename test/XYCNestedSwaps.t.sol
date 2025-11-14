@@ -10,7 +10,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import { Aqua } from "src/Aqua.sol";
 import { AquaApp } from "src/AquaApp.sol";
-import { XYCSwap, IAquaTakerCallback } from "src/apps/XYCSwap.sol";
+import { XYCSwap, IXYCSwapCallback } from "src/apps/XYCSwap.sol";
 
 // Mock ERC20 token for testing
 contract MockERC20 is ERC20 {
@@ -21,7 +21,7 @@ contract MockERC20 is ERC20 {
     }
 }
 
-contract XYCNestedSwapsTest is Test, IAquaTakerCallback {
+contract XYCNestedSwapsTest is Test, IXYCSwapCallback {
     Aqua public aqua;
     XYCSwap public xycSwapImpl;
     MockERC20 public token0;
@@ -377,8 +377,8 @@ contract XYCNestedSwapsTest is Test, IAquaTakerCallback {
         return (amountInWithFee * reserveOut) / (reserveIn + amountInWithFee);
     }
 
-    // IAquaTakerCallback implementation with nested swap support
-    function aquaTakerCallback(
+    // IXYCSwapCallback implementation with nested swap support
+    function xycSwapCallback(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
