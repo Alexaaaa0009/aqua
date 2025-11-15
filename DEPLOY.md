@@ -39,10 +39,6 @@ Create a `.env` file in the project root with the following variables:
 OPS_NETWORK="localhost"          # Network name (e.g., mainnet, sepolia, localhost)
 OPS_CHAIN_ID="31337"            # Chain ID for the target network
 
-# Contract Parameters
-OPS_AQUA_ROUTER_NAME="AquaRouter"
-OPS_AQUA_ROUTER_VERSION="1.0.0"
-
 # Network-specific RPC and Private Key
 # Format: <NETWORK_NAME>_RPC_URL and <NETWORK_NAME>_PRIVATE_KEY
 LOCALHOST_RPC_URL=http://127.0.0.1:8546
@@ -60,21 +56,6 @@ For automated deployments .env.automation file will be created automatically and
 
 ```bash
 OPS_LAUNCH_MODE=auto make deploy-aqua-router
-```
-
-## Configuration File
-
-The `config/constants.json` file stores deployment parameters per chain:
-
-```json
-{
-  "aquaRouterVersion": {
-    "31337": "1.0.0"
-  },
-  "aquaRouterName": {
-    "31337": "AquaRouter"
-  }
-}
 ```
 
 ## Deployment Commands
