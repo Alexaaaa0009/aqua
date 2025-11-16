@@ -35,6 +35,28 @@ deploy-aqua-router-impl:
             --broadcast -vvvv; \
 	}
 
+verify-aqua-router:
+	@$(MAKE) FILE_DEPLOY_NAME=AquaRouter validate-aqua-router verify-aqua-router-impl
+
+verify-aqua-router-impl:
+	@{ \
+	    $(MAKE) ID=FILE_DEPLOY_NAME validate || exit 1; \
+	    DEPLOYMENT_FILE="$(CURRENT_DIR)/deployments/$(OPS_NETWORK)/$${FILE_DEPLOY_NAME}.json"; \
+	    if [ ! -f $$DEPLOYMENT_FILE ]; then \
+	        echo "Deployment file $$DEPLOYMENT_FILE does not exist! Deploy first."; \
+	        exit 1; \
+	    fi; \
+	    CONTRACT_ADDRESS=$$($(MAKE) contract-address DEPLOYMENT_FILE=$$DEPLOYMENT_FILE); \
+	    echo "Verifying $${FILE_DEPLOY_NAME} at $$CONTRACT_ADDRESS on $(OPS_NETWORK)..."; \
+	    forge verify-contract $$CONTRACT_ADDRESS \
+	        src/$${FILE_DEPLOY_NAME}.sol:$${FILE_DEPLOY_NAME} \
+            --skip-is-verified-check \
+            --rpc-url $(RPC_URL) \
+	        --chain-id $(OPS_CHAIN_ID) \
+	        --watch \
+	        --compiler-version $(COMPILER_VERSION); \
+	}
+
 # Helper targets
 save-deployments:
 	@{ \
@@ -155,5 +177,5 @@ help:
 		@echo "Available targets:"
 		@grep -E '^[a-zA-Z0-9_.-]+:' $(CURRENT_DIR)/Makefile | grep -v '^\.' | awk -F: '{print "  " $$1}' | sort -u
 
-.PHONY: deploy-aqua-router deploy-aqua-router-impl save-deployments contract-address validate-aqua-router validate \
+.PHONY: deploy-aqua-router deploy-aqua-router-impl verify-aqua-router verify-aqua-router-impl save-deployments contract-address validate-aqua-router validate \
         get get-outputs update build tests coverage snapshot snapshot-check format clean lint anvil balance balance-erc20 help
