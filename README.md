@@ -482,6 +482,30 @@ forge install
 forge test
 ```
 
+## Deployments
+
+The Aqua Protocol is deployed across multiple networks at the same address:
+
+**Contract Address:** `0x499943e74fb0ce105688beee8ef2abec5d936d31`
+
+### Supported Networks
+
+| Network | Contract Address |
+|---------|-----------------|
+| Ethereum Mainnet | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Base | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Optimism | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Polygon | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Arbitrum | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Avalanche | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Binance Smart Chain | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Linea | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Sonic | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Unichain | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| Gnosis | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+| zkSync | `0x499943e74fb0ce105688beee8ef2abec5d936d31` |
+
+
 ## License
 
 This project is licensed under the **LicenseRef-Degensoft-Aqua-Source-1.1**
